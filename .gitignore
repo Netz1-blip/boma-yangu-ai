@@ -1,0 +1,16 @@
+.env.local
+.env
+.vercel
+
+# Knowledge base
+knowledge/
+
+# Precomputed vectors
+data/boma-vectors.json
+
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db

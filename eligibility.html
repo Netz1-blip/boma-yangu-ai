@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Am I Eligible? — Boma Yangu AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── Same CSS variable system as index.html ── */
+:root {
+  --cream:    #F2EAE0;
+  --teal:     #B4D3D9;
+  --lavender: #BDA6CE;
+  --purple:   #9B8EC7;
+  --purple-2: #7a6ab0;
+  --purple-3: #574e84;
+  --panel-bg:     #16112a;
+  --panel-bg2:    #1e1838;
+  --panel-glow1:  rgba(155,142,199,0.28);
+  --panel-glow2:  rgba(180,211,217,0.18);
+  --panel-text:   #f0ecfc;
+  --panel-sub:    rgba(240,236,252,0.52);
+  --panel-border: rgba(155,142,199,0.14);
+  --panel-card:   rgba(155,142,199,0.07);
+  --panel-hover:  rgba(155,142,199,0.13);
+  --chat-bg:      #F2EAE0;
+  --ai-bg:        #ffffff;
+  --ai-text:      #1a1428;
+  --ai-border:    rgba(180,211,217,0.45);
+  --card-bg:      rgba(255,255,255,0.72);
+  --card-border:  rgba(155,142,199,0.18);
+  --card-hover:   rgba(155,142,199,0.1);
+  --text:         #1a1428;
+  --muted:        #6b628a;
+  --green:        #4ade80;
+  --amber:        #f5a623;
+  --red:          #f05454;
+  --radius:       14px;
+  --t: 0.24s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="dark"] {
+  --chat-bg:   #0e0b1c;
+  --ai-bg:     #1d1833;
+  --ai-text:   #f0ecfc;
+  --ai-border: rgba(180,211,217,0.13);
+  --card-bg:   rgba(155,142,199,0.06);
+  --card-border: rgba(155,142,199,0.12);
+  --card-hover: rgba(155,142,199,0.1);
+  --text:      #f0ecfc;
+  --muted:     #8878b0;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--chat-bg);
+  color:var(--text);
+  line-height:1.6;
+  transition:background .35s ease,color .35s ease;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:radial-gradient(rgba(155,142,199,.045) 1px,transparent 1px);
+  background-size:28px 28px;
+  pointer-events:none;z-index:0;
+}
+
+/* ── HEADER ── */
+header{
+  background:var(--panel-bg);
+  border-bottom:1px solid var(--panel-border);
+  padding:13px 24px;
+  display:flex;align-items:center;gap:14px;
+  position:sticky;top:0;z-index:20;
+  animation:slideDown .4s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+.logo{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(140deg,var(--purple) 0%,var(--lavender) 100%);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 5px 18px rgba(155,142,199,.42);flex-shrink:0;
+}
+.logo svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;}
+.header-brand{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--panel-text);letter-spacing:-.02em;}
+.header-tag{
+  font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--purple);background:rgba(155,142,199,.12);
+  border:1px solid rgba(155,142,199,.22);border-radius:999px;padding:3px 9px;
+}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.back-link{
+  display:flex;align-items:center;gap:5px;
+  color:var(--panel-sub);text-decoration:none;font-size:12px;font-weight:500;
+  border:1px solid var(--panel-border);background:var(--panel-card);
+  padding:6px 12px;border-radius:8px;transition:all var(--t);
+}
+.back-link:hover{background:var(--panel-hover);color:var(--panel-text);}
+.dark-toggle{
+  width:32px;height:32px;border-radius:8px;
+  border:1px solid var(--panel-border);background:var(--panel-card);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:13px;transition:all var(--t);
+}
+.dark-toggle:hover{background:var(--panel-hover);}
+
+/* ── SCAM ALERT BANNER ── */
+.scam-banner{
+  background:rgba(240,84,84,.08);
+  border:1px solid rgba(240,84,84,.25);
+  border-radius:12px;padding:12px 16px;
+  display:flex;align-items:flex-start;gap:11px;
+  font-size:12px;color:var(--text);line-height:1.6;
+  margin-bottom:24px;
+  animation:fadeUp .5s .1s cubic-bezier(.4,0,.2,1) both;
+}
+.scam-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.scam-banner strong{color:#f05454;}
+.scam-banner a{color:#f05454;text-decoration:none;font-weight:600;}
+.scam-banner a:hover{text-decoration:underline;}
+
+/* ── PAGE ── */
+.page{max-width:720px;margin:0 auto;padding:40px 24px 80px;position:relative;z-index:1;}
+
+/* ── PAGE HEADING ── */
+.page-heading{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(24px,5vw,36px);
+  font-weight:800;color:var(--text);
+  line-height:1.15;letter-spacing:-.03em;
+  margin-bottom:8px;
+  animation:fadeUp .5s cubic-bezier(.4,0,.2,1) both;
+}
+.page-heading .hl{color:var(--purple);}
+.page-sub{
+  color:var(--muted);font-size:14px;line-height:1.7;
+  margin-bottom:36px;max-width:520px;
+  animation:fadeUp .5s .08s cubic-bezier(.4,0,.2,1) both;
+}
+
+/* ── CARD ── */
+.card{
+  background:var(--ai-bg);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius);
+  padding:24px;margin-bottom:16px;
+  transition:background .35s ease,border-color .35s ease;
+  animation:fadeUp .5s .12s cubic-bezier(.4,0,.2,1) both;
+}
+.card-label{
+  font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--purple-2);margin-bottom:18px;
+  display:flex;align-items:center;gap:7px;
+}
+.card-label::before{
+  content:'';width:3px;height:12px;
+  background:var(--purple);border-radius:2px;display:inline-block;
+}
+
+/* ── FORM FIELDS ── */
+.field{margin-bottom:20px;}
+.field:last-child{margin-bottom:0;}
+label{
+  display:block;font-size:13px;font-weight:600;
+  color:var(--text);margin-bottom:7px;
+}
+label .note{font-weight:400;color:var(--muted);margin-left:4px;font-size:12px;}
+
+input[type="number"], select{
+  width:100%;
+  background:var(--chat-bg);
+  border:1.5px solid var(--card-border);
+  border-radius:9px;
+  color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:15px;
+  padding:11px 14px;
+  outline:none;
+  transition:border-color var(--t),background var(--t);
+  appearance:none;-webkit-appearance:none;
+}
+[data-theme="dark"] input[type="number"],
+[data-theme="dark"] select{background:#0e0b1c;}
+input[type="number"]:focus, select:focus{border-color:var(--purple);}
+input[type="number"]::placeholder{color:var(--muted);opacity:.6;}
+.select-wrap{position:relative;}
+.select-wrap::after{
+  content:'▾';position:absolute;right:13px;top:50%;
+  transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:12px;
+}
+
+/* ── EMPLOYMENT PILLS ── */
+.pill-group{display:flex;gap:7px;flex-wrap:wrap;}
+.pill-group input[type="radio"]{display:none;}
+.pill-group label{
+  margin:0;padding:8px 15px;border-radius:999px;
+  border:1.5px solid var(--card-border);
+  background:var(--chat-bg);font-size:12.5px;font-weight:600;
+  cursor:pointer;transition:all var(--t);color:var(--muted);user-select:none;
+}
+[data-theme="dark"] .pill-group label{background:#0e0b1c;}
+.pill-group input[type="radio"]:checked + label{
+  background:var(--purple);border-color:var(--purple);color:#fff;
+  box-shadow:0 3px 12px rgba(155,142,199,.38);
+}
+.pill-group label:hover{border-color:var(--purple);color:var(--purple-2);}
+
+/* ── CTA BUTTON ── */
+.btn-check{
+  width:100%;padding:14px;margin-top:8px;
+  background:linear-gradient(140deg,var(--purple),var(--lavender));
+  color:#fff;border:none;border-radius:10px;
+  font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;letter-spacing:.02em;
+  transition:opacity var(--t),transform var(--t),box-shadow var(--t);
+  box-shadow:0 5px 18px rgba(155,142,199,.35);
+}
+.btn-check:hover{opacity:.92;transform:translateY(-2px);box-shadow:0 10px 28px rgba(155,142,199,.45);}
+.btn-check:active{transform:scale(.99);}
+
+/* ── RESULTS ── */
+#results{display:none;}
+#results.visible{display:block;animation:fadeUp .35s cubic-bezier(.4,0,.2,1) both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── ELIGIBILITY BADGE ── */
+.elig-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 16px;border-radius:999px;
+  font-size:12.5px;font-weight:700;
+  margin-bottom:16px;
+  font-family:'Syne',sans-serif;letter-spacing:.02em;
+}
+.elig-badge.yes{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.28);}
+.elig-badge.maybe{background:rgba(245,166,35,.1);color:var(--amber);border:1px solid rgba(245,166,35,.25);}
+.elig-badge.no{background:rgba(240,84,84,.1);color:var(--red);border:1px solid rgba(240,84,84,.25);}
+.elig-dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+
+/* ── BAND CHIP ── */
+.band-chip{
+  display:inline-block;
+  background:rgba(155,142,199,.12);
+  color:var(--purple-2);border:1px solid rgba(155,142,199,.28);
+  padding:4px 12px;border-radius:6px;
+  font-size:11px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;font-family:'Syne',sans-serif;
+  margin-bottom:14px;
+}
+.band-sub{font-size:12.5px;color:var(--muted);margin-bottom:18px;line-height:1.6;}
+
+/* ── SUMMARY ROWS ── */
+.result-row{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:11px 0;border-bottom:1px solid var(--card-border);gap:16px;
+}
+.result-row:last-child{border-bottom:none;}
+.result-label{font-size:12.5px;color:var(--muted);flex-shrink:0;}
+.result-value{font-size:13px;font-weight:600;color:var(--text);text-align:right;font-family:'DM Mono',monospace;}
+.result-value.hl{color:var(--purple-2);}
+.result-value.warn{color:var(--amber);}
+
+/* ── SECTION DIVIDER ── */
+.section-divider{
+  font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);
+  display:flex;align-items:center;gap:10px;
+  margin:24px 0 14px;
+  font-family:'Syne',sans-serif;
+}
+.section-divider::after{content:'';flex:1;height:1px;background:var(--card-border);}
+
+/* ── PROJECT CARDS ── */
+.project-card{
+  background:var(--ai-bg);
+  border:1px solid var(--card-border);
+  border-radius:12px;padding:16px 18px;
+  margin-bottom:10px;
+  transition:border-color var(--t),transform var(--t);
+}
+.project-card:hover{border-color:rgba(155,142,199,.45);transform:translateY(-2px);}
+.project-card:last-child{margin-bottom:0;}
+.project-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px;}
+.project-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text);line-height:1.3;}
+.project-status{
+  flex-shrink:0;font-size:10px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;padding:3px 9px;border-radius:5px;
+  font-family:'Syne',sans-serif;
+}
+.status-active{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.25);}
+.status-construction{background:rgba(245,166,35,.1);color:var(--amber);border:1px solid rgba(245,166,35,.25);}
+.status-preconstruction{background:rgba(155,142,199,.12);color:var(--purple-2);border:1px solid rgba(155,142,199,.28);}
+.status-soldout{background:rgba(240,84,84,.08);color:var(--red);border:1px solid rgba(240,84,84,.2);}
+.project-units{font-size:12px;color:var(--muted);margin-bottom:8px;}
+
+/* ── UNIT PRICE ROWS ── */
+.unit-row{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:5px 0;border-bottom:1px solid var(--card-border);
+  font-size:12px;
+}
+.unit-row:last-child{border-bottom:none;}
+.unit-type{color:var(--muted);}
+.unit-price{font-family:'DM Mono',monospace;font-size:11.5px;font-weight:500;color:var(--text);}
+.unit-price.soldout{color:var(--red);text-decoration:line-through;opacity:.65;}
+.unit-tps{font-size:10.5px;color:var(--purple-2);font-family:'DM Mono',monospace;}
+.sold-badge{font-size:10px;color:var(--red);font-weight:700;margin-left:6px;}
+.price-unknown{font-size:11px;color:var(--amber);font-style:italic;}
+
+/* ── STEPS ── */
+.steps-list{list-style:none;counter-reset:steps;}
+.steps-list li{
+  counter-increment:steps;
+  display:flex;gap:13px;padding:12px 0;
+  border-bottom:1px solid var(--card-border);
+  font-size:13px;align-items:flex-start;line-height:1.65;
+}
+.steps-list li:last-child{border-bottom:none;}
+.steps-list li::before{
+  content:counter(steps);
+  min-width:25px;height:25px;
+  background:rgba(155,142,199,.12);color:var(--purple-2);
+  border:1px solid rgba(155,142,199,.25);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;font-family:'Syne',sans-serif;flex-shrink:0;
+}
+.steps-list a{color:var(--purple-2);text-decoration:none;}
+.steps-list a:hover{text-decoration:underline;}
+.steps-list strong{font-weight:700;}
+
+/* ── INFO BOX ── */
+.info-box{
+  display:flex;gap:11px;align-items:flex-start;
+  background:rgba(155,142,199,.07);
+  border:1px solid rgba(155,142,199,.2);
+  border-radius:10px;padding:13px 15px;
+  font-size:12.5px;color:var(--muted);line-height:1.65;
+  margin-bottom:12px;
+}
+.info-box .info-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
+.info-box strong{color:var(--text);}
+
+/* ── CHAT CTA ── */
+.chat-cta{
+  display:flex;align-items:center;gap:14px;
+  background:linear-gradient(135deg,rgba(155,142,199,.08),rgba(180,211,217,.05));
+  border:1px solid rgba(155,142,199,.2);border-radius:var(--radius);
+  padding:16px 18px;margin-top:6px;
+}
+.chat-cta-icon{font-size:20px;flex-shrink:0;}
+.chat-cta-body{flex:1;}
+.chat-cta-body strong{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text);display:block;margin-bottom:2px;}
+.chat-cta-body span{font-size:11.5px;color:var(--muted);}
+.chat-cta-btn{
+  flex-shrink:0;background:var(--purple);color:#fff;
+  border:none;border-radius:8px;padding:9px 15px;
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
+  cursor:pointer;transition:opacity var(--t);text-decoration:none;
+  display:inline-block;letter-spacing:.02em;
+}
+.chat-cta-btn:hover{opacity:.85;}
+
+/* ── RESET + DISCLAIMER ── */
+.reset-btn{
+  display:inline-block;margin-top:16px;
+  font-size:12.5px;color:var(--muted);cursor:pointer;
+  background:none;border:none;font-family:'Plus Jakarta Sans',sans-serif;
+  text-decoration:underline;text-underline-offset:3px;
+}
+.reset-btn:hover{color:var(--text);}
+.disclaimer{
+  font-size:11.5px;color:var(--muted);text-align:center;
+  margin-top:36px;line-height:1.8;
+}
+.disclaimer a{color:var(--purple-2);text-decoration:none;}
+.disclaimer a:hover{text-decoration:underline;}
+
+/* ── DATA NOTICE ── */
+.data-notice{
+  font-size:11px;color:var(--muted);
+  border-left:2px solid var(--card-border);
+  padding-left:10px;margin-top:8px;line-height:1.6;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:520px){
+  .page{padding:28px 14px 60px;}
+  .card{padding:18px;}
+  .result-row{flex-direction:column;gap:2px;}
+  .result-value{text-align:left;}
+  .chat-cta{flex-wrap:wrap;}
+  .chat-cta-btn{width:100%;text-align:center;}
+  .project-top{flex-direction:column;gap:6px;}
+  header{padding:12px 16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V21H15v-5H9v5H3V10.5z"/></svg>
+  </div>
+  <span class="header-brand">Boma Yangu AI</span>
+  <span class="header-tag">Eligibility Checker</span>
+  <div class="header-right">
+    <button class="dark-toggle" id="dark-btn" onclick="toggleDark()" title="Toggle theme">🌙</button>
+    <a href="/" class="back-link">← Back to chat</a>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ── SCAM ALERT ── -->
+  <div class="scam-banner">
+    <span class="scam-icon">🔴</span>
+    <div>
+      <strong>Scam Alert:</strong> Boma Yangu registration is <strong>FREE</strong>. No agent can "guarantee" you a unit.
+      Only use the official portal: <a href="https://www.bomayangu.go.ke" target="_blank">bomayangu.go.ke</a>
+      &nbsp;·&nbsp; Report scams: <strong>DCI 0800 722 203</strong>
+    </div>
+  </div>
+
+  <h1 class="page-heading">Am I eligible for<br><span class="hl">affordable housing?</span></h1>
+  <p class="page-sub">Answer 3 questions — get your income band, matching Nairobi projects with real prices, and exact next steps. No sign-up needed.</p>
+
+  <!-- ══════════════ FORM ══════════════ -->
+  <div id="form-section">
+    <div class="card">
+      <div class="card-label">Your Details</div>
+
+      <div class="field">
+        <label for="income">Gross monthly income <span class="note">(KES, before tax/deductions)</span></label>
+        <input type="number" id="income" placeholder="e.g. 35000" min="0" step="500" inputmode="numeric"/>
+      </div>
+
+      <div class="field">
+        <label>Employment type</label>
+        <div class="pill-group">
+          <input type="radio" name="emp" id="emp-employed" value="employed" checked/>
+          <label for="emp-employed">Employed</label>
+          <input type="radio" name="emp" id="emp-self" value="self"/>
+          <label for="emp-self">Self-employed</label>
+          <input type="radio" name="emp" id="emp-informal" value="informal"/>
+          <label for="emp-informal">Informal / Jua kali</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="county">Your county</label>
+        <div class="select-wrap">
+          <select id="county">
+            <option value="">— Select county —</option>
+            <option value="nairobi">Nairobi</option>
+            <option value="mombasa">Mombasa</option>
+            <option value="kisumu">Kisumu</option>
+            <option value="nakuru">Nakuru</option>
+            <option value="eldoret">Eldoret (Uasin Gishu)</option>
+            <option value="kakamega">Kakamega</option>
+            <option value="kiambu">Kiambu</option>
+            <option value="kajiado">Kajiado</option>
+            <option value="other">Other county</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-check" onclick="checkEligibility()">Check My Eligibility →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════ RESULTS ══════════════ -->
+  <div id="results">
+
+    <div class="card">
+      <div id="elig-badge-wrap"></div>
+      <div id="band-chip-wrap"></div>
+      <div id="summary-rows"></div>
+    </div>
+
+    <div id="projects-section" style="display:none">
+      <div class="section-divider">Matching projects in your county</div>
+      <div id="projects-list"></div>
+      <div id="projects-notice" class="data-notice" style="display:none"></div>
+    </div>
+
+    <div class="section-divider">Your next steps</div>
+    <div class="card">
+      <ul class="steps-list" id="steps-list"></ul>
+    </div>
+
+    <div class="chat-cta">
+      <div class="chat-cta-icon">💬</div>
+      <div class="chat-cta-body">
+        <strong>Have more questions?</strong>
+        <span>Ask Boma Yangu AI about levy history, allocation, TPS repayments, and more.</span>
+      </div>
+      <a href="/" class="chat-cta-btn">Ask AI →</a>
+    </div>
+
+    <button class="reset-btn" onclick="resetForm()">← Check again with different details</button>
+
+  </div>
+
+  <p class="disclaimer">
+    Data sourced from the Affordable Housing Act 2024, official Boma Yangu portal, and AHB publications (last updated May 2026).<br>
+    For live pricing and allocation status, visit <a href="https://www.bomayangu.go.ke" target="_blank">bomayangu.go.ke</a>
+    or call <strong>0700 832 832</strong>.
+  </p>
+
+</div><!-- /page -->
+
+<script>
+/* ══════════════════════════════════════════
+   INCOME BANDS
+   Source: Affordable Housing Board definitions
+══════════════════════════════════════════ */
+const BANDS = [
+  {
+    id:         "social",
+    label:      "Social Housing",
+    min:        0,
+    max:        19999,
+    color:      "#4ade80",
+    desc:       "For earners below KES 20,000/month. Subsidised units with rent-to-own monthly payments.",
+    priceRange: "From KES 640,000",
+    deposit:    "12.5% of unit price",
+    depositPct: 0.125,
+  },
+  {
+    id:         "lowcost",
+    label:      "Low-Cost Affordable",
+    min:        20000,
+    max:        49999,
+    color:      "#9B8EC7",
+    desc:       "For earners between KES 20,000 – 49,999/month. Standard affordable units.",
+    priceRange: "From KES 1,000,000",
+    deposit:    "12.5% of unit price",
+    depositPct: 0.125,
+  },
+  {
+    id:         "standard",
+    label:      "Affordable Standard",
+    min:        50000,
+    max:        149999,
+    color:      "#f5a623",
+    desc:       "For earners between KES 50,000 – 149,999/month. Mid-range affordable units.",
+    priceRange: "From KES 2,000,000",
+    deposit:    "12.5% of unit price",
+    depositPct: 0.125,
+  },
+  {
+    id:         "market",
+    label:      "Market Rate",
+    min:        150000,
+    max:        Infinity,
+    color:      "#BDA6CE",
+    desc:       "For earners above KES 150,000/month. Market-rate units within AHP projects.",
+    priceRange: "From KES 3,600,000",
+    deposit:    "12.5% of unit price",
+    depositPct: 0.125,
+  },
+];
+
+/* ══════════════════════════════════════════
+   NAIROBI PROJECTS — REAL DATA ONLY
+   Source: Nairobi KB v1.0 (12 May 2026)
+   Prices from: Boma Yangu portal, NEMA ESIA,
+   Boma Yangu Newsletter Issue 1 (Apr 2025),
+   State Dept Housing tender docs.
+══════════════════════════════════════════ */
+const NAIROBI_PROJECTS = [
+
+  {
+    name:     "Mukuru Kwa Njenga",
+    location: "Off Enterprise Road, Industrial Area",
+    bands:    ["social"],
+    status:   "active",          // Phase 1 (1,080 units) handed over May 2025
+    statusLabel: "Phase 1 Live",
+    units_total: "13,248 planned (1,080 handed over)",
+    note:     "Priority to enumerated Mukuru informal settlement residents. The full project of 13,248 units remains under construction.",
+    units: [
+      { type:"Studio / Bedsitter", price:640000,   soldout:false, tps_monthly:3900,  tps_note:"KES 3,900/month (TPS)" },
+      { type:"1-Bedroom",          price:960000,   soldout:false, tps_monthly:4000,  tps_note:"KES 4,000/month (TPS)" },
+      { type:"2-Bedroom",          price:1280000,  soldout:false, tps_monthly:5000,  tps_note:"KES 5,000/month (TPS)" },
+    ],
+    // Source: Boma Yangu Newsletter Issue 1, Apr 2025; Eastleigh Voice, 20 May 2025
+  },
+
+  {
+    name:     "Starehe Point (Starehe Point 1 Estate)",
+    location: "Off General Waruinge Road, Ziwani/Kariokor, 2.5 km from CBD",
+    bands:    ["social","lowcost","standard"],
+    status:   "construction",
+    statusLabel: "Under Construction",
+    units_total: "4,096 units (2,634 affordable + 1,062 social + 400 market)",
+    note:     "Prices from June 2024 (Tuko) — may be outdated. Construction ongoing; 9th floor reached as of Jan 2026. Expected completion was Feb 2026 but this deadline has likely been missed. Verify current prices with AHB.",
+    units: [
+      { type:"Social units",  price:640000,  soldout:false, tps_monthly:null, tps_note:"TPS rate — contact AHB" },
+      { type:"1-Bedroom",     price:1980000, soldout:false, tps_monthly:null, tps_note:"TPS rate — contact AHB" },
+      { type:"2-Bedroom",     price:3460000, soldout:false, tps_monthly:null, tps_note:"TPS rate — contact AHB" },
+      { type:"3-Bedroom",     price:4120000, soldout:false, tps_monthly:null, tps_note:"TPS rate — contact AHB" },
+    ],
+    // Source: NEMA ESIA Jan 2026; Tuko Jun 2024 (prices — outdated)
+  },
+
+  {
+    name:     "Jogoo Road Phase 1",
+    location: "Mbotela/Makongeni Ward, Makadara Constituency",
+    bands:    ["lowcost","standard","market"],
+    status:   "preconstruction",
+    statusLabel: "Pre-Construction",
+    units_total: "1,173 units (138 studio + 483 2BR affordable + 552 market)",
+    note:     "Tender issued Aug 2024 (No. MLPWHUD/HUD/AHP/459/2023-2024). No contractor announced as of May 2026. Expected to complete in phases through 2026 per the State Department for Housing — no gazetted date yet.",
+    units: [
+      { type:"Studio (affordable)", price:1000000, soldout:false, tps_monthly:null, tps_note:"TPS rate — contact AHB" },
+      { type:"2-Bedroom (affordable)", price:2000000, soldout:false, tps_monthly:15100, tps_note:"KES 15,100/month (TPS)" },
+      { type:"2-Bedroom (market)",    price:3600000, soldout:false, tps_monthly:null, tps_note:"TPS rate — contact AHB" },
+      { type:"3-Bedroom (market)",    price:4800000, soldout:false, tps_monthly:null, tps_note:"TPS rate — contact AHB" },
+    ],
+    // Source: Boma Yangu portal project #158; State Dept tender doc Aug 2024
+  },
+
+  {
+    name:     "Pangani Affordable Housing",
+    location: "Near Pangani Shopping Centre, Juja Road, Starehe",
+    bands:    ["lowcost","standard","market"],
+    status:   "construction",
+    statusLabel: "Under Construction",
+    units_total: "1,562 units",
+    note:     "The 1BR, 2BR, and 3BR units are sold out. Only ~100 units of the 3BR duplex (premium tier, KES 10M) may remain. Title deed controversy: the county could not trace the title for the 5.2-acre parcel (Dec 2024). Verify status before depositing money.",
+    units: [
+      { type:"1-Bedroom (24m²)",      price:1000000,  soldout:true,  tps_monthly:null, tps_note:null },
+      { type:"2-Bedroom (45m²)",      price:2500000,  soldout:true,  tps_monthly:null, tps_note:null },
+      { type:"3-Bedroom (60m²)",      price:3000000,  soldout:true,  tps_monthly:null, tps_note:null },
+      { type:"3-Bedroom Duplex (90m²)", price:10000000, soldout:false, tps_monthly:null, tps_note:"~100 units may remain — confirm with portal" },
+    ],
+    // Source: Boma Yangu portal; Construction Kenya Oct 2025; Bizna Kenya Dec 2024
+  },
+
+  {
+    name:     "Kibera Soweto East Zone B",
+    location: "Kibera, Langata Sub-county (off Langata Road, near Nyayo Highrise)",
+    bands:    ["social","lowcost"],
+    status:   "construction",
+    statusLabel: "80%+ Complete",
+    units_total: "4,054 units (Phase 1)",
+    note:     "Over 80% complete as of April 2026. Priority to enumerated Kibera residents — if you do not live in Kibera, you may join the general waiting list but enumerated residents get first allocation. Unit prices have not been published as of May 2026.",
+    units: [
+      { type:"Prices not yet published", price:null, soldout:false, tps_monthly:null, tps_note:"Contact AHB: 0722 832 832" },
+    ],
+    // Source: Citizen Digital 28 Apr 2026; Boma Yangu portal project #100
+  },
+
+  {
+    name:     "Shauri Moyo B (Johana Ng'eno Estate)",
+    location: "Off Jogoo Road, Makadara (~6 km from CBD)",
+    bands:    ["lowcost","standard"],
+    status:   "construction",
+    statusLabel: "12% Complete",
+    units_total: "4,566 units across 22 blocks (3 phases). Completion est. March 2027.",
+    note:     "12% complete as of March 2025. 24-month contract period implies full completion around March 2027. Unit prices not published as of May 2026.",
+    units: [
+      { type:"Prices not yet published", price:null, soldout:false, tps_monthly:null, tps_note:"Contact AHB: 0722 832 832" },
+    ],
+    // Source: Kenya Times 10 Mar 2025; AHB ongoing projects page
+  },
+
+  {
+    name:     "Embakasi Estate",
+    location: "Kayole South Ward, Nairobi City County",
+    bands:    ["social"],
+    status:   "construction",
+    statusLabel: "Listed on Portal",
+    units_total: "Unit count not published",
+    note:     "Only social 1-room unit price is published. No construction status, no completion date available as of May 2026.",
+    units: [
+      { type:"1-Room (social)", price:640000, soldout:false, tps_monthly:null, tps_note:"Contact AHB for TPS rate" },
+    ],
+    // Source: Boma Yangu portal project #159
+  },
+
+  {
+    name:     "Park Road Estate (Ngara)",
+    location: "Park Road, Ngara (near Fig Tree Trade Centre)",
+    bands:    [],  // ALL SOLD OUT — no active band
+    status:   "soldout",
+    statusLabel: "All Units Sold",
+    units_total: "~1,370 units (822 public + 548 civil servants) — fully allocated",
+    note:     "Completed project — all units sold and allocated. Original prices shown for reference only. Join the waiting list at bomayangu.go.ke in case vacancies arise.",
+    units: [
+      { type:"1-Bedroom (30m²) — REFERENCE",  price:1500000, soldout:true, tps_monthly:null, tps_note:null },
+      { type:"2-Bedroom (40m²) — REFERENCE",  price:2000000, soldout:true, tps_monthly:null, tps_note:null },
+      { type:"2-Bedroom (60m²) — REFERENCE",  price:3000000, soldout:true, tps_monthly:null, tps_note:null },
+      { type:"3-Bedroom (80m²) — REFERENCE",  price:4000000, soldout:true, tps_monthly:null, tps_note:null },
+    ],
+    // Source: Legacy Boma Yangu portal; DezyNbild Dec 2025
+  },
+];
+
+/* ══════════════════════════════════════════
+   OTHER COUNTIES
+   We only have project names; no verified
+   prices in the current KB. We direct users
+   to the portal rather than invent figures.
+══════════════════════════════════════════ */
+const OTHER_COUNTY_MSG = {
+  mombasa:  { note:"Nairobi's KB is our most detailed. For Mombasa, the Mishomoroni and Buxton Estate Redevelopment projects are known to be in the pipeline. Detailed pricing is not available in our current knowledge base.", portal: true },
+  kisumu:   { note:"Mamboleo and Manyatta projects have been announced for Kisumu. Detailed pricing is not yet available in our current knowledge base.", portal: true },
+  nakuru:   { note:"A project in Free Area, Nakuru Town is in the pipeline. Detailed pricing is not available in our current knowledge base.", portal: true },
+  eldoret:  { note:"Langas Estate is a proposed project for Eldoret. No confirmed prices or timelines as of May 2026.", portal: true },
+  kakamega: { note:"Shieywe Estate has been proposed for Kakamega. No confirmed prices or timelines as of May 2026.", portal: true },
+  kiambu:   { note:"A development along the Thika Road Corridor is in the pipeline for Kiambu. Pricing not available in our current knowledge base.", portal: true },
+  kajiado:  { note:"A project in Ongata Rongai has been proposed for Kajiado. No confirmed prices or timelines as of May 2026.", portal: true },
+  other:    { note:"Detailed project data for this county is not yet in our knowledge base.", portal: true },
+};
+
+const EMP_LABELS = { employed:"Employed (formal)", self:"Self-employed", informal:"Informal / Jua kali" };
+
+/* ══════════════════════════════════════════
+   CORE LOGIC
+══════════════════════════════════════════ */
+function getBand(income) {
+  return BANDS.find(b => income >= b.min && income <= b.max);
+}
+
+function getLevy(income, emp) {
+  // 1.5% per Affordable Housing Act 2024
+  if (income < 1) return null;
+  return Math.round(income * 0.015);
+}
+
+function getDeposit(income, band) {
+  // Legal: 12.5% per Section 48, Affordable Housing Act 2024
+  // KB Addition 2 mentions 5% for social housing on portal — flag this discrepancy
+  return { pct: 0.125, label: "12.5%" };
+}
+
+function getEligibility(income, emp) {
+  if (!income || income < 1)
+    return { status:"no", reason:"Please enter a valid monthly income." };
+  if (emp === "informal" && income < 5000)
+    return {
+      status:"maybe",
+      reason:"Jua kali workers earning under KES 5,000/month may qualify under social housing subject to verification at the portal. Register with your National ID and self-declare your income."
+    };
+  return {
+    status:"yes",
+    reason:"You meet the basic income criteria for the Affordable Housing Programme (AHP)."
+  };
+}
+
+function matchProjects(bandId, county) {
+  if (county !== "nairobi") return [];
+  return NAIROBI_PROJECTS.filter(p => {
+    if (p.status === "soldout") return true; // always show, flagged red
+    return p.bands.includes(bandId);
+  });
+}
+
+function fmtKES(n) {
+  if (!n) return null;
+  return "KES " + n.toLocaleString('en-KE');
+}
+
+/* ══════════════════════════════════════════
+   RENDER STEPS
+   Source: Boma Yangu portal step-by-step
+   (Nairobi KB Addition 2)
+══════════════════════════════════════════ */
+function getSteps(emp, band, county) {
+  const portal = "https://www.bomayangu.go.ke";
+  const steps = [];
+  const countyName = county
+    ? county.charAt(0).toUpperCase() + county.slice(1)
+    : "your county";
+
+  // Step 1 — levy contribution
+  if (emp === "employed") {
+    steps.push(`Confirm your employer is remitting your <strong>Housing Levy (1.5% of gross salary)</strong> to KRA via iTax. If not, ask your HR department — employer must also contribute a matching 1.5%.`);
+  } else if (emp === "self") {
+    steps.push(`Register as a self-employed contributor at <a href="${portal}/register" target="_blank">bomayangu.go.ke</a> and begin contributing <strong>1.5% of your declared gross income</strong> monthly via M-Pesa Paybill <strong>005500</strong>.`);
+  } else {
+    steps.push(`Register at <a href="${portal}/register" target="_blank">bomayangu.go.ke</a> or dial <strong>*832#</strong> with your National ID and KRA PIN. As a jua kali worker, you can self-declare your income for the 1.5% levy contribution.`);
+  }
+
+  // Step 2 — registration
+  steps.push(`Create your Boma Yangu profile at <a href="${portal}" target="_blank">bomayangu.go.ke</a> — you'll need your National ID, KRA PIN, and proof of income. Activate your account with a minimum deposit of <strong>KES 200</strong> to Paybill <strong>005500</strong>, using your ID number as the account reference.`);
+
+  // Step 3 — documents
+  const docs = emp === "employed"
+    ? "3 months' payslips + employer letter"
+    : emp === "self"
+      ? "6 months' bank or M-Pesa statements + KRA PIN"
+      : "National ID + KRA PIN (self-declared income accepted)";
+  steps.push(`Upload documents to My Profile: National ID, KRA PIN certificate, passport-size photo, and <strong>${docs}</strong>.`);
+
+  // Step 4 — project selection + deposit
+  steps.push(`Browse active projects in ${countyName} on the portal dashboard. Save toward the required <strong>deposit: ${band.deposit}</strong> of your chosen unit's price. Consistent savers get higher allocation priority.`);
+
+  // Step 5 — express interest
+  steps.push(`Click <strong>Express Interest</strong> on your chosen project. Select your income band: <strong>${band.label}</strong>. You'll receive an SMS/email when allocation rounds open — typically quarterly.`);
+
+  // Step 6 — payment modes
+  steps.push(`If shortlisted, choose your payment mode: (1) <strong>Tenant Purchase Scheme (TPS)</strong> — pay 12.5% deposit, then fixed monthly repayments at 7% interest p.a. over 25 years; (2) <strong>Mortgage</strong> — through a partner bank; (3) <strong>Outright purchase</strong> — balance within 90 days. Call <strong>0700 832 832</strong> for guidance.`);
+
+  return steps;
+}
+
+/* ══════════════════════════════════════════
+   MAIN CHECK FUNCTION
+══════════════════════════════════════════ */
+function checkEligibility() {
+  const income  = parseFloat(document.getElementById("income").value);
+  const emp     = document.querySelector('input[name="emp"]:checked').value;
+  const county  = document.getElementById("county").value || null;
+
+  // Validate
+  if (!income || income < 1) {
+    const inp = document.getElementById("income");
+    inp.style.borderColor = "var(--red)";
+    inp.focus();
+    setTimeout(() => { inp.style.borderColor = ""; }, 1800);
+    return;
+  }
+
+  const band  = getBand(income);
+  const levy  = getLevy(income, emp);
+  const elig  = getEligibility(income, emp);
+  const dep   = getDeposit(income, band);
+
+  // ── Eligibility badge ──
+  const badges = {
+    yes:   ["✓ Likely eligible", "yes"],
+    maybe: ["~ Conditionally eligible", "maybe"],
+    no:    ["✗ Not eligible with current details", "no"],
+  };
+  const [bText, bClass] = badges[elig.status];
+  document.getElementById("elig-badge-wrap").innerHTML =
+    `<div class="elig-badge ${bClass}"><span class="elig-dot"></span>${bText}</div>
+     <p style="font-size:12.5px;color:var(--muted);margin-bottom:16px;line-height:1.6">${elig.reason}</p>`;
+
+  // ── Band chip ──
+  document.getElementById("band-chip-wrap").innerHTML =
+    `<div class="band-chip">${band.label}</div>
+     <p class="band-sub">${band.desc}</p>`;
+
+  // ── Summary rows ──
+  const rows = [
+    ["Monthly income",        fmtKES(income),                 false],
+    ["Employment type",       EMP_LABELS[emp],                false],
+    ["Income band",           band.label,                     "hl"],
+    ["Unit price range",      band.priceRange,                false],
+    ["Your levy contribution", levy ? `KES ${levy.toLocaleString()} / month` : "—", false],
+    ...(emp === "employed" ? [["Employer match (1.5%)", levy ? `KES ${levy.toLocaleString()} / month` : "—", false]] : []),
+    ["Required deposit",      dep.label + " of unit price",   "warn"],
+    ["County selected",       county ? county.charAt(0).toUpperCase()+county.slice(1) : "Not specified", false],
+  ];
+
+  document.getElementById("summary-rows").innerHTML = rows.map(([l, v, cls]) =>
+    `<div class="result-row">
+       <span class="result-label">${l}</span>
+       <span class="result-value ${cls || ''}">${v}</span>
+     </div>`
+  ).join("");
+
+  // ── Projects ──
+  const projSection = document.getElementById("projects-section");
+  const projList    = document.getElementById("projects-list");
+  const projNotice  = document.getElementById("projects-notice");
+
+  if (county === "nairobi") {
+    const matching = matchProjects(band.id, county);
+    projSection.style.display = "block";
+
+    if (matching.length > 0) {
+      projList.innerHTML = matching.map(p => {
+        const isSoldOut = p.status === "soldout";
+
+        const unitRows = p.units.map(u => {
+          if (!u.price) {
+            return `<div class="unit-row">
+              <span class="unit-type">${u.type}</span>
+              <span class="price-unknown">⚠ ${u.tps_note}</span>
+            </div>`;
+          }
+          const priceClass = u.soldout ? "unit-price soldout" : "unit-price";
+          const soldLabel  = u.soldout ? `<span class="sold-badge">SOLD OUT</span>` : "";
+          const tpsLine    = u.tps_monthly
+            ? `<span class="unit-tps">TPS: KES ${u.tps_monthly.toLocaleString()}/mo</span>`
+            : (u.tps_note && !u.soldout ? `<span class="unit-tps">${u.tps_note}</span>` : "");
+          return `<div class="unit-row">
+            <span class="unit-type">${u.type}${soldLabel}</span>
+            <div style="text-align:right">
+              <span class="${priceClass}">${fmtKES(u.price)}</span>
+              ${tpsLine ? `<br>${tpsLine}` : ""}
+            </div>
+          </div>`;
+        }).join("");
+
+        const statusClsMap = {
+          active:"status-active", construction:"status-construction",
+          preconstruction:"status-preconstruction", soldout:"status-soldout",
+        };
+
+        return `<div class="project-card">
+          <div class="project-top">
+            <div class="project-name">📍 ${p.name}</div>
+            <span class="project-status ${statusClsMap[p.status] || 'status-construction'}">${p.statusLabel}</span>
+          </div>
+          <div class="project-units">${p.location} &nbsp;·&nbsp; ${p.units_total}</div>
+          <div style="margin-top:8px">${unitRows}</div>
+          ${p.note ? `<div class="data-notice" style="margin-top:10px">${p.note}</div>` : ""}
+        </div>`;
+      }).join("");
+
+      // Deposit note with legal source
+      projNotice.style.display = "block";
+      projNotice.innerHTML = `<strong>Deposit requirement:</strong> The Affordable Housing Act 2024 (Section 48) requires a minimum of <strong>12.5%</strong> of the unit value saved in your Boma Yangu e-wallet — not 10%. For social housing, the portal may accept a lower initial saving; contact AHB (0722 832 832) to confirm before applying.`;
+
+    } else {
+      projList.innerHTML = `<div class="info-box">
+        <span class="info-icon">ℹ️</span>
+        <div>No active Nairobi projects currently match your income band in our KB. Check <a href="https://www.bomayangu.go.ke" target="_blank" style="color:var(--purple-2)">bomayangu.go.ke</a> for the latest listings or call <strong>0700 832 832</strong>.</div>
+      </div>`;
+      projNotice.style.display = "none";
+    }
+
+  } else if (county && OTHER_COUNTY_MSG[county]) {
+    projSection.style.display = "block";
+    const msg = OTHER_COUNTY_MSG[county];
+    projList.innerHTML = `<div class="info-box">
+      <span class="info-icon">📋</span>
+      <div>${msg.note}
+        ${msg.portal ? ` Visit <a href="https://www.bomayangu.go.ke/projects" target="_blank" style="color:var(--purple-2)">bomayangu.go.ke/projects</a> or call <strong>0722 832 832</strong> for current listings in your county.` : ""}
+      </div>
+    </div>`;
+    projNotice.style.display = "none";
+
+  } else {
+    projSection.style.display = "none";
+  }
+
+  // ── Steps ──
+  document.getElementById("steps-list").innerHTML =
+    getSteps(emp, band, county).map(s => `<li>${s}</li>`).join("");
+
+  // ── Show results ──
+  document.getElementById("form-section").style.display = "none";
+  const res = document.getElementById("results");
+  res.style.display = "block";
+  requestAnimationFrame(() => res.classList.add("visible"));
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function resetForm() {
+  document.getElementById("results").classList.remove("visible");
+  document.getElementById("results").style.display = "none";
+  document.getElementById("form-section").style.display = "block";
+  document.getElementById("income").value = "";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ── Dark mode ── */
+let dark = false;
+function toggleDark() {
+  dark = !dark;
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  document.getElementById("dark-btn").textContent = dark ? "☀️" : "🌙";
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Boma Yangu AI — Kenya Housing Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --cream:    #F2EAE0;
+  --teal:     #B4D3D9;
+  --lavender: #BDA6CE;
+  --purple:   #9B8EC7;
+  --purple-2: #7a6ab0;
+  --purple-3: #574e84;
+  --panel-bg:      #16112a;
+  --panel-bg2:     #1e1838;
+  --panel-glow1:   rgba(155,142,199,0.28);
+  --panel-glow2:   rgba(180,211,217,0.18);
+  --panel-text:    #f0ecfc;
+  --panel-sub:     rgba(240,236,252,0.52);
+  --panel-border:  rgba(155,142,199,0.14);
+  --panel-card:    rgba(155,142,199,0.07);
+  --panel-hover:   rgba(155,142,199,0.13);
+  --panel-active:  rgba(155,142,199,0.2);
+  --chat-bg:       #F2EAE0;
+  --chat-header:   rgba(242,234,224,0.88);
+  --chat-footer:   rgba(242,234,224,0.92);
+  --user-bg:       #9B8EC7;
+  --user-text:     #ffffff;
+  --ai-bg:         #ffffff;
+  --ai-text:       #1a1428;
+  --ai-border:     rgba(180,211,217,0.45);
+  --input-bg:      rgba(255,255,255,0.92);
+  --input-border:  rgba(155,142,199,0.22);
+  --chip-bg:       rgba(189,166,206,0.14);
+  --chip-border:   rgba(189,166,206,0.3);
+  --chip-text:     #574e84;
+  --chip-hover:    rgba(155,142,199,0.22);
+  --card-bg:       rgba(255,255,255,0.72);
+  --card-border:   rgba(155,142,199,0.18);
+  --card-hover:    rgba(155,142,199,0.1);
+  --text:          #1a1428;
+  --muted:         #6b628a;
+  --t: 0.24s cubic-bezier(.4,0,.2,1);
+  --t-slow: 0.42s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="dark"] {
+  --chat-bg:      #0e0b1c;
+  --chat-header:  rgba(14,11,28,0.9);
+  --chat-footer:  rgba(14,11,28,0.93);
+  --ai-bg:        #1d1833;
+  --ai-text:      #f0ecfc;
+  --ai-border:    rgba(180,211,217,0.13);
+  --input-bg:     rgba(29,24,51,0.96);
+  --input-border: rgba(155,142,199,0.18);
+  --chip-bg:      rgba(155,142,199,0.09);
+  --chip-border:  rgba(155,142,199,0.18);
+  --chip-text:    #BDA6CE;
+  --chip-hover:   rgba(155,142,199,0.18);
+  --card-bg:      rgba(155,142,199,0.06);
+  --card-border:  rgba(155,142,199,0.12);
+  --card-hover:   rgba(155,142,199,0.1);
+  --text:         #f0ecfc;
+  --muted:        #8878b0;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--chat-bg);color:var(--text);transition:background var(--t-slow),color var(--t-slow);-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(155,142,199,.25);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:rgba(155,142,199,.4)}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;width:100vw;overflow:hidden}
+
+/* ── SIDEBAR PANEL ── */
+.panel{width:272px;min-width:272px;background:var(--panel-bg);display:flex;flex-direction:column;padding:20px 16px;gap:18px;position:relative;overflow:hidden;overflow-y:auto;z-index:20;transition:transform var(--t-slow);}
+.panel-orb{position:absolute;border-radius:50%;pointer-events:none}
+.panel-orb-1{width:220px;height:220px;top:-70px;right:-70px;background:radial-gradient(circle,var(--panel-glow1) 0%,transparent 70%);}
+.panel-orb-2{width:260px;height:260px;bottom:-100px;left:-80px;background:radial-gradient(circle,var(--panel-glow2) 0%,transparent 70%);}
+.panel-grid{position:absolute;inset:0;background-image:radial-gradient(rgba(155,142,199,.1) 1px,transparent 1px);background-size:22px 22px;pointer-events:none;}
+.brand{display:flex;align-items:center;gap:11px;position:relative;z-index:1;}
+.logo{width:44px;height:44px;border-radius:13px;background:linear-gradient(140deg,var(--purple) 0%,var(--lavender) 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 8px 24px rgba(155,142,199,.42);position:relative;overflow:hidden;}
+.logo::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.22),transparent 60%);}
+.logo svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;position:relative;z-index:1;}
+.brand-copy h1{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--panel-text);letter-spacing:-.02em;line-height:1.2;}
+.brand-copy p{font-size:10px;color:var(--panel-sub);margin-top:2px;}
+.status-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(155,142,199,.1);border:1px solid rgba(155,142,199,.18);border-radius:999px;padding:5px 12px;width:fit-content;position:relative;z-index:1;}
+.s-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px rgba(74,222,128,.7);animation:sdot 2.2s ease-in-out infinite;}
+@keyframes sdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.75)}}
+.status-pill span{font-size:11px;color:var(--panel-text);font-weight:500}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;position:relative;z-index:1;}
+.stat{background:var(--panel-card);border:1px solid var(--panel-border);border-radius:13px;padding:12px 11px;transition:background var(--t),transform var(--t);cursor:default;}
+.stat:hover{background:var(--panel-hover);transform:translateY(-2px)}
+.stat-n{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--purple);line-height:1;letter-spacing:-.02em;}
+.stat-l{font-size:10px;color:var(--panel-sub);margin-top:4px;line-height:1.35}
+.p-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--panel-sub);font-weight:600;padding:0 3px;position:relative;z-index:1;}
+
+/* ── COUNTY SELECTOR ── */
+.p-section{display:flex;flex-direction:column;gap:4px;position:relative;z-index:1}
+.county-grid{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}
+.county-btn{border:1px solid var(--panel-border);background:var(--panel-card);color:var(--panel-sub);padding:5px 10px;border-radius:999px;cursor:pointer;font-size:10.5px;font-weight:600;font-family:'Syne',sans-serif;transition:all var(--t);letter-spacing:.02em;}
+.county-btn:hover{background:var(--panel-hover);color:var(--panel-text);}
+.county-btn.active{background:var(--purple);border-color:var(--purple);color:#fff;box-shadow:0 3px 10px rgba(155,142,199,.38);}
+
+/* ── NAV ITEMS ── */
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;background:transparent;border:none;text-align:left;width:100%;cursor:pointer;color:var(--panel-sub);font-size:12.5px;font-weight:500;font-family:'Plus Jakarta Sans',sans-serif;transition:all var(--t);}
+.nav-item:hover{background:var(--panel-hover);color:var(--panel-text);transform:translateX(3px);}
+.nav-item .ni{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+
+/* ── PANEL BOTTOM ── */
+.panel-bottom{margin-top:auto;display:flex;flex-direction:column;gap:9px;position:relative;z-index:1;padding-top:8px;}
+.controls-row{display:flex;align-items:center;gap:7px}
+.lang-pill{flex:1;display:flex;background:rgba(155,142,199,.09);border:1px solid rgba(155,142,199,.14);border-radius:10px;padding:3px;gap:2px;}
+.lang-btn{flex:1;border:none;background:transparent;padding:6px 4px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:.04em;font-family:'Syne',sans-serif;color:var(--panel-sub);transition:all var(--t);}
+.lang-btn.on{background:var(--purple);color:#fff;box-shadow:0 4px 14px rgba(155,142,199,.38);}
+.dark-btn{width:34px;height:34px;border-radius:10px;border:1px solid rgba(155,142,199,.14);background:rgba(155,142,199,.09);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all var(--t);flex-shrink:0;}
+.dark-btn:hover{background:rgba(155,142,199,.18)}
+.powered{display:flex;align-items:center;gap:9px;background:var(--panel-card);border:1px solid var(--panel-border);border-radius:12px;padding:10px 12px;cursor:pointer;text-decoration:none;transition:all var(--t);}
+.powered:hover{background:var(--panel-hover);}
+.pow-icon{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1e1b4b,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.pow-text strong{display:block;font-size:11px;color:var(--panel-text);font-weight:600}
+.pow-text span{font-size:10px;color:var(--panel-sub)}
+
+/* ── CHAT AREA ── */
+.chat-area{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--chat-bg);position:relative;transition:background var(--t-slow);}
+.chat-area::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(155,142,199,.055) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0;}
+
+/* ── CHAT HEADER ── */
+.chat-header{display:flex;align-items:center;justify-content:space-between;padding:13px 22px;background:var(--chat-header);backdrop-filter:blur(24px);border-bottom:1px solid rgba(155,142,199,.12);position:relative;z-index:5;transition:background var(--t-slow);}
+.h-left{display:flex;align-items:center;gap:10px}
+.h-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(140deg,var(--purple),var(--lavender));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:10px;font-weight:800;color:#fff;box-shadow:0 4px 14px rgba(155,142,199,.32);flex-shrink:0;}
+.h-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text)}
+.h-sub{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;margin-top:1px;}
+.h-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px rgba(74,222,128,.6);display:inline-block;animation:sdot 2.2s ease-in-out infinite;}
+.h-right{display:flex;align-items:center;gap:6px}
+.h-btn{height:34px;border-radius:9px;border:1px solid rgba(155,142,199,.18);background:rgba(155,142,199,.07);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);transition:all var(--t);padding:0 10px;gap:6px;}
+.h-btn:hover{background:rgba(155,142,199,.16);color:var(--purple)}
+.h-btn.icon-only{width:34px;padding:0;}
+.h-btn .btn-label{font-size:11.5px;font-weight:600;font-family:'Syne',sans-serif;}
+.menu-btn{display:none}
+
+/* ── MESSAGES ── */
+.messages{flex:1;overflow-y:auto;padding:22px 24px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth;position:relative;z-index:1;}
+
+/* ── WELCOME HERO ── */
+.welcome{background:linear-gradient(135deg,rgba(155,142,199,.1),rgba(180,211,217,.07));border:1px solid rgba(155,142,199,.16);border-radius:22px;padding:24px;position:relative;overflow:hidden;animation:fadeUp .6s cubic-bezier(.4,0,.2,1) both;}
+.welcome::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;background:radial-gradient(circle,rgba(189,166,206,.2) 0%,transparent 70%);pointer-events:none;}
+.w-tag{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple-2);background:rgba(155,142,199,.12);border:1px solid rgba(155,142,199,.22);border-radius:999px;padding:5px 11px;margin-bottom:13px;}
+.w-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;line-height:1.18;letter-spacing:-.03em;color:var(--text);position:relative;z-index:1;}
+.w-title .hl{color:var(--purple)}
+.w-sub{font-size:13px;line-height:1.75;color:var(--muted);margin-top:8px;max-width:540px;position:relative;z-index:1;}
+.chips-wrap{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;position:relative;z-index:1;}
+
+/* ── LANDING CARDS GRID ── */
+.cards-section{margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:relative;z-index:1;}
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:14px 13px 13px;cursor:pointer;transition:all var(--t);text-align:left;position:relative;overflow:hidden;animation:chipPop .4s cubic-bezier(.4,0,.2,1) both;}
+.card::after{content:'';position:absolute;inset:0;background:radial-gradient(160px circle at var(--mx,50%) var(--my,50%),rgba(155,142,199,.14),transparent);opacity:0;transition:opacity var(--t);pointer-events:none;}
+.card:hover{border-color:rgba(155,142,199,.45);transform:translateY(-3px);box-shadow:0 10px 28px rgba(155,142,199,.18);}
+.card:hover::after{opacity:1;}
+.card-icon{font-size:22px;margin-bottom:8px;display:block;line-height:1;}
+.card-title{font-family:'Syne',sans-serif;font-size:11.5px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:4px;}
+.card-desc{font-size:10px;color:var(--muted);line-height:1.55;}
+.card-arrow{position:absolute;bottom:11px;right:12px;font-size:10px;color:var(--purple);opacity:0;transition:all var(--t);transform:translateX(-3px);}
+.card:hover .card-arrow{opacity:1;transform:translateX(0);}
+
+/* ── CHIPS ── */
+.chip{border:1px solid var(--chip-border);background:var(--chip-bg);color:var(--chip-text);padding:7px 14px;border-radius:999px;cursor:pointer;font-size:12px;font-weight:500;font-family:'Plus Jakarta Sans',sans-serif;transition:all var(--t);white-space:nowrap;animation:chipPop .35s cubic-bezier(.4,0,.2,1) both;}
+.chip:nth-child(1){animation-delay:.04s}.chip:nth-child(2){animation-delay:.08s}.chip:nth-child(3){animation-delay:.12s}.chip:nth-child(4){animation-delay:.16s}.chip:nth-child(5){animation-delay:.20s}.chip:nth-child(6){animation-delay:.24s}
+@keyframes chipPop{from{opacity:0;transform:scale(.88) translateY(4px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.chip:hover{background:var(--chip-hover);border-color:var(--purple);color:var(--purple-2);transform:translateY(-2px);box-shadow:0 4px 12px rgba(155,142,199,.18);}
+.chips-row{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0;animation:fadeUp .32s cubic-bezier(.4,0,.2,1) both;}
+
+/* ── MESSAGES ── */
+.msg{display:flex;gap:8px;animation:fadeUp .28s cubic-bezier(.4,0,.2,1) both;}
+.msg.user{flex-direction:row-reverse}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.avatar{width:33px;height:33px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;font-family:'Syne',sans-serif;flex-shrink:0;align-self:flex-end;}
+.avatar.ai{background:linear-gradient(140deg,var(--purple),var(--lavender));color:#fff;box-shadow:0 3px 10px rgba(155,142,199,.3);}
+.avatar.user{background:linear-gradient(140deg,#261f44,#3a2e62);color:rgba(255,255,255,.88);}
+
+/* ── BUBBLE WRAP (copy btn + timestamp) ── */
+.bubble-wrap{display:flex;flex-direction:column;gap:4px;max-width:min(580px,70%);}
+.bubble-wrap.user{align-items:flex-end;}
+.bubble{width:100%;padding:13px 16px;border-radius:17px;font-size:14px;line-height:1.78;}
+.bubble.ai{background:var(--ai-bg);color:var(--ai-text);border:1px solid var(--ai-border);box-shadow:0 3px 14px rgba(26,20,40,.06);border-bottom-left-radius:5px;}
+.bubble.user{background:var(--user-bg);color:var(--user-text);box-shadow:0 5px 18px rgba(155,142,199,.3);border-bottom-right-radius:5px;}
+.msg-meta{display:flex;align-items:center;gap:6px;padding:0 3px;opacity:0;transition:opacity var(--t);}
+.msg-meta.user{justify-content:flex-end;}
+.msg:hover .msg-meta{opacity:1;}
+.msg-ts{font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;}
+.copy-btn{width:22px;height:22px;border:1px solid rgba(155,142,199,.22);background:transparent;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all var(--t);padding:0;flex-shrink:0;}
+.copy-btn:hover{background:rgba(155,142,199,.15);color:var(--purple);border-color:var(--purple);}
+.copy-btn.copied{color:#4ade80;border-color:#4ade80;}
+.copy-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+/* ── TYPING ── */
+.typing{display:flex;gap:8px;align-items:flex-end;animation:fadeUp .28s cubic-bezier(.4,0,.2,1) both;}
+.t-bubble{background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:17px;border-bottom-left-radius:5px;padding:14px 16px;display:flex;gap:5px;align-items:center;box-shadow:0 3px 14px rgba(26,20,40,.06);}
+.t-dot{width:7px;height:7px;border-radius:50%;background:var(--purple);animation:tdot 1.15s ease-in-out infinite;}
+.t-dot:nth-child(2){animation-delay:.18s}.t-dot:nth-child(3){animation-delay:.36s}
+@keyframes tdot{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-7px);opacity:1}}
+
+/* ── COMPOSER ── */
+.composer{padding:13px 20px 17px;background:var(--chat-footer);backdrop-filter:blur(24px);border-top:1px solid rgba(155,142,199,.1);position:relative;z-index:5;transition:background var(--t-slow);}
+.input-wrap{display:flex;align-items:flex-end;gap:9px;background:var(--input-bg);border:1.5px solid var(--input-border);border-radius:15px;padding:10px 10px 10px 16px;transition:all var(--t);box-shadow:0 3px 18px rgba(155,142,199,.07);}
+.input-wrap:focus-within{border-color:var(--purple);box-shadow:0 0 0 4px rgba(155,142,199,.11),0 3px 18px rgba(155,142,199,.09);}
+textarea{flex:1;border:none;outline:none;resize:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;line-height:1.6;color:var(--text);max-height:130px;min-height:22px;overflow-y:auto;}
+textarea::placeholder{color:var(--muted);opacity:.65}
+.send{width:40px;height:40px;border:none;border-radius:10px;background:linear-gradient(140deg,var(--purple),var(--lavender));color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--t);flex-shrink:0;box-shadow:0 4px 14px rgba(155,142,199,.38);}
+.send:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 8px 20px rgba(155,142,199,.48)}
+.send:active{transform:scale(.96)}
+.send:disabled{opacity:0.45;cursor:not-allowed;transform:none;box-shadow:none;}
+.send svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.c-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding:0 2px;font-size:10px;color:var(--muted);opacity:.7;}
+.county-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--purple-2);font-weight:600;background:rgba(155,142,199,.12);border-radius:999px;padding:2px 8px;border:1px solid rgba(155,142,199,.2);}
+
+/* ── MARKDOWN ── */
+.bubble p.md-p{margin:0 0 7px 0;line-height:1.78}
+.bubble p.md-p:last-child{margin-bottom:0}
+.bubble ol.md-ol{margin:8px 0 8px 20px;display:flex;flex-direction:column;gap:4px;list-style:decimal}
+.bubble ul.md-ul{margin:8px 0 8px 20px;display:flex;flex-direction:column;gap:4px;list-style:disc}
+.bubble li{line-height:1.7;padding-left:2px}
+.bubble strong{font-weight:700}
+.bubble em{font-style:italic;opacity:.9}
+.section-header{display:flex;align-items:center;gap:7px;font-family:'Syne',sans-serif;font-size:11.5px;font-weight:700;color:var(--purple-2);text-transform:uppercase;letter-spacing:.07em;margin:10px 0 5px;line-height:1.3;}
+.section-header::before{content:'';width:3px;height:13px;background:var(--purple);border-radius:2px;display:inline-block;flex-shrink:0;}
+.cite{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-family:'DM Mono',monospace;color:var(--purple-2);background:rgba(155,142,199,.12);border:1px solid rgba(155,142,199,.25);border-radius:5px;padding:1px 7px;margin-left:5px;vertical-align:middle;white-space:nowrap;}
+[data-theme="dark"] .cite{color:var(--lavender);background:rgba(155,142,199,.1);border-color:rgba(155,142,199,.2);}
+
+/* ── OVERLAY ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);backdrop-filter:blur(4px);z-index:15;}
+.overlay.show{display:block}
+
+/* ── RESPONSIVE ── */
+@media(max-width:880px){
+  .panel{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%);box-shadow:8px 0 40px rgba(0,0,0,.3);}
+  .panel.open{transform:translateX(0)}
+  .menu-btn{display:flex}
+  .messages{padding:16px 14px}
+  .composer{padding:10px 13px 15px}
+  .chat-header{padding:12px 14px}
+  .w-title{font-size:19px}
+  .bubble{font-size:13.5px}
+  .bubble-wrap{max-width:86%}
+  .cards-section{grid-template-columns:repeat(2,1fr)}
+  .h-btn .btn-label{display:none}
+}
+@media(max-width:480px){
+  .welcome{padding:17px}
+  .w-title{font-size:17px}
+  .chip{font-size:11.5px;padding:6px 11px}
+  .messages{gap:13px}
+  .cards-section{gap:6px}
+}
+
+/* ── ENTRY ANIMATIONS ── */
+.panel{animation:panelIn .5s cubic-bezier(.4,0,.2,1) both}
+.chat-header{animation:fadeUp .45s .05s cubic-bezier(.4,0,.2,1) both}
+.messages{animation:fadeUp .45s .1s cubic-bezier(.4,0,.2,1) both}
+.composer{animation:fadeUp .45s .15s cubic-bezier(.4,0,.2,1) both}
+@keyframes panelIn{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</head>
+
+<body>
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+<div class="app">
+
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="panel" id="panel">
+    <div class="panel-grid"></div>
+    <div class="panel-orb panel-orb-1"></div>
+    <div class="panel-orb panel-orb-2"></div>
+
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V21H15v-5H9v5H3V10.5z"/></svg>
+      </div>
+      <div class="brand-copy">
+        <h1>Boma Yangu AI</h1>
+        <p>Kenya Housing Intelligence</p>
+      </div>
+    </div>
+
+    <div class="status-pill">
+      <div class="s-dot"></div>
+      <span id="status-txt">AI Online · Ready</span>
+    </div>
+
+    <!-- Stats -->
+    <div>
+      <div class="p-label" style="margin-bottom:7px">Knowledge Base</div>
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-n" data-count="601">0</div><div class="stat-l">Vector<br>embeddings</div></div>
+        <div class="stat"><div class="stat-n" data-count="62">0</div><div class="stat-l">KB<br>documents</div></div>
+        <div class="stat"><div class="stat-n" data-count="7">0</div><div class="stat-l">Counties<br>covered</div></div>
+        <div class="stat"><div class="stat-n" data-count="20">0</div><div class="stat-l">Context<br>layers</div></div>
+      </div>
+    </div>
+
+    <!-- County Filter -->
+    <div class="p-section">
+      <div class="p-label" id="county-label" style="margin-bottom:6px">County Filter</div>
+      <div class="county-grid" id="county-grid"></div>
+    </div>
+
+    <!-- Quick Topics -->
+    <div class="p-section">
+      <div class="p-label" id="nav-label">Quick Topics</div>
+      <button class="nav-item" onclick="quickAsk(this)"><span class="ni">🏠</span><span class="nt">Eligibility Checker</span></button>
+      <button class="nav-item" onclick="quickAsk(this)"><span class="ni">💰</span><span class="nt">Housing Levy</span></button>
+      <button class="nav-item" onclick="quickAsk(this)"><span class="ni">📋</span><span class="nt">Application Process</span></button>
+      <button class="nav-item" onclick="quickAsk(this)"><span class="ni">📍</span><span class="nt">County Projects</span></button>
+      <button class="nav-item" onclick="quickAsk(this)"><span class="ni">📱</span><span class="nt">M-Pesa Payments</span></button>
+    </div>
+
+    <div class="panel-bottom">
+      <div class="controls-row">
+        <div class="lang-pill">
+          <button class="lang-btn on" id="btn-en" onclick="setLang('en')">EN</button>
+          <button class="lang-btn" id="btn-sw" onclick="setLang('sw')">SW</button>
+        </div>
+        <button class="dark-btn" id="dark-btn" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
+      </div>
+      <a class="powered" href="https://cerebras.ai" target="_blank" rel="noopener">
+        <div class="pow-icon">⚡</div>
+        <div class="pow-text">
+          <strong>Powered by Cerebras</strong>
+          <span>gpt-oss-120b · RAG-enabled</span>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══════════════ CHAT ═══════════════ -->
+  <div class="chat-area">
+    <div class="chat-header">
+      <div class="h-left">
+        <button class="h-btn icon-only menu-btn" onclick="openPanel()" aria-label="Menu">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="h-avatar">BY</div>
+        <div>
+          <div class="h-name">Boma Yangu AI</div>
+          <div class="h-sub"><span class="h-dot"></span><span id="h-status">Online · Kenya Housing Assistant</span></div>
+        </div>
+      </div>
+      <div class="h-right">
+        <button class="h-btn" onclick="clearChat()" title="New Chat">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span class="btn-label" id="new-chat-label">New Chat</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="messages" id="msgs">
+      <div class="welcome" id="welcome">
+        <div class="w-tag">🇰🇪 Kenya Housing · 2026</div>
+        <h2 class="w-title" id="w-title">Smart housing guidance for <span class="hl">every Kenyan.</span></h2>
+        <p class="w-sub" id="w-sub">Ask anything about affordable housing, registration, housing levy, eligibility, county projects, and applications. Available in English and Kiswahili.</p>
+        <div class="chips-wrap" id="chips"></div>
+        <div class="cards-section" id="cards"></div>
+      </div>
+      <div class="msg">
+        <div class="avatar ai">BY</div>
+        <div class="bubble-wrap">
+          <div class="bubble ai" id="greeting">
+            Karibu to Boma Yangu AI 🏠 I can help you understand affordable housing eligibility, levy contributions, application processes, county projects, and housing allocation across Kenya. What would you like to know?
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="composer">
+      <div class="input-wrap">
+        <textarea id="inp" rows="1" placeholder="Ask about housing in Kenya..."></textarea>
+        <button class="send" id="send-btn" onclick="sendMsg()" aria-label="Send">
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <div class="c-footer">
+        <span id="hint">Enter to send · Shift+Enter for new line</span>
+        <span id="county-footer"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════ */
+let lang           = 'en';
+let dark           = false;
+let busy           = false;
+let history        = [];
+let chipRound      = 0;
+let lastSendTime   = 0;
+let selectedCounty = null;
+
+/* ════════════════════════════════════════════
+   CONTENT STRINGS
+════════════════════════════════════════════ */
+const C = {
+  en: {
+    wTitle:       'Smart housing guidance for <span class="hl">every Kenyan.</span>',
+    wSub:         'Ask anything about affordable housing, registration, housing levy, eligibility, county projects, and applications. Available in English and Kiswahili.',
+    greeting:     'Karibu to Boma Yangu AI 🏠 I can help you understand affordable housing eligibility, levy contributions, application processes, county projects, and housing allocation across Kenya. What would you like to know?',
+    ph:           'Ask about housing in Kenya...',
+    hint:         'Enter to send · Shift+Enter for new line',
+    statusOK:     'AI Online · Ready',
+    statusBusy:   'AI Thinking...',
+    hStatusOK:    'Online · Kenya Housing Assistant',
+    hStatusBusy:  'Composing response...',
+    navLabel:     'Quick Topics',
+    countyLabel:  'County Filter',
+    navItems:     ['Eligibility Checker','Housing Levy','Application Process','County Projects','M-Pesa Payments'],
+    newChat:      'New Chat',
+    counties:     ['All','Nairobi','Mombasa','Kisumu','Nakuru','Eldoret','Kakamega','Kiambu'],
+    chips: [
+      ['How do I register?','Projects in Nairobi','Housing levy explained','Can self-employed apply?','Documents needed','Check application status'],
+      ['Affordable housing Mombasa','Tenant purchase scheme','Housing levy rate 2024','How long does it take?','What is NHDF?'],
+      ['Tenant rights in Kenya','Apply as jua kali worker','Kakamega housing projects','Income requirements','Pay via M-Pesa'],
+    ],
+    cards: [
+      { icon:'🏠', title:'Eligibility Checker',    desc:'Find out if you qualify based on income & location',    q:'Am I eligible for affordable housing in Kenya?' },
+      { icon:'💰', title:'Housing Levy',            desc:'1.5% monthly contribution — who pays and how',          q:'Explain the housing levy and how it works' },
+      { icon:'📋', title:'How to Apply',            desc:'Step-by-step AHP application process',                  q:'How do I apply for affordable housing step by step?' },
+      { icon:'📍', title:'County Projects',         desc:'Active housing projects across 7 counties',             q:'What are the current affordable housing projects?' },
+      { icon:'📱', title:'M-Pesa Payments',         desc:'Pay your housing levy via mobile money easily',         q:'How do I pay my housing levy via M-Pesa?' },
+      { icon:'👷', title:'Self-Employed',           desc:'Jua kali & informal sector workers guide',              q:'Can self-employed and jua kali workers apply for AHP?' },
+    ]
+  },
+  sw: {
+    wTitle:       'Msaada wa nyumba kwa <span class="hl">kila Mkenya.</span>',
+    wSub:         'Uliza chochote kuhusu nyumba nafuu, usajili, ushuru wa nyumba, ustahili, miradi ya kaunti, na maombi. Inapatikana kwa Kiingereza na Kiswahili.',
+    greeting:     'Karibu Boma Yangu AI 🏠 Naweza kukusaidia kuelewa ustahili wa nyumba nafuu, michango ya ushuru, mchakato wa maombi, miradi ya kaunti, na ugawaji wa nyumba Kenya. Ungependa kujua nini?',
+    ph:           'Uliza kuhusu nyumba Kenya...',
+    hint:         'Enter kutuma · Shift+Enter mstari mpya',
+    statusOK:     'AI Inaendesha · Iko tayari',
+    statusBusy:   'AI Inafikiri...',
+    hStatusOK:    'Mtandaoni · Msaidizi wa Nyumba',
+    hStatusBusy:  'Inaandika jibu...',
+    navLabel:     'Mada za Haraka',
+    countyLabel:  'Chagua Kaunti',
+    navItems:     ['Ukaguzi wa Ustahili','Ushuru wa Nyumba','Mchakato wa Maombi','Miradi ya Kaunti','Malipo ya M-Pesa'],
+    newChat:      'Mazungumzo Mapya',
+    counties:     ['Zote','Nairobi','Mombasa','Kisumu','Nakuru','Eldoret','Kakamega','Kiambu'],
+    chips: [
+      ['Jinsi ya kusajili?','Miradi Nairobi','Ushuru wa nyumba nini?','Wafanyakazi binafsi?','Nyaraka zinazohitajika','Angalia hali ya ombi'],
+      ['Nyumba nafuu Mombasa','Mpango wa ununuzi wa mpangaji','Kiwango cha ushuru 2024','Inachukua muda gani?','NHDF ni nini?'],
+      ['Haki za mpangaji Kenya','Omba kama fundi jua kali','Miradi Kakamega','Mahitaji ya mapato','Lipa M-Pesa'],
+    ],
+    cards: [
+      { icon:'🏠', title:'Ukaguzi wa Ustahili',    desc:'Jua kama unastahili kulingana na mapato yako',          q:'Je, ninastahili nyumba nafuu Kenya?' },
+      { icon:'💰', title:'Ushuru wa Nyumba',        desc:'Mchango wa 1.5% kwa mwezi — nani analipa',              q:'Eleza ushuru wa nyumba na jinsi unavyofanya kazi' },
+      { icon:'📋', title:'Jinsi ya Kuomba',         desc:'Hatua za maombi ya AHP',                                q:'Jinsi ya kuomba nyumba nafuu hatua kwa hatua?' },
+      { icon:'📍', title:'Miradi ya Kaunti',        desc:'Miradi ya nyumba katika kaunti 7',                      q:'Miradi ya nyumba inayoendelea Kenya ni ipi?' },
+      { icon:'📱', title:'Malipo ya M-Pesa',        desc:'Lipa ushuru wa nyumba kwa simu kwa urahisi',            q:'Ninaliaje ushuru wa nyumba kwa M-Pesa?' },
+      { icon:'👷', title:'Wafanyakazi Binafsi',     desc:'Mwongozo wa fundi jua kali na sekta isiyo rasmi',       q:'Wafanyakazi wa kujitegemea wanaweza kuomba AHP?' },
+    ]
+  }
+};
+
+/* ════════════════════════════════════════════
+   COUNTY SELECTOR
+════════════════════════════════════════════ */
+function renderCounties() {
+  const c = C[lang];
+  const grid = document.getElementById('county-grid');
+  if (!grid) return;
+  const rawCounties = ['All','Nairobi','Mombasa','Kisumu','Nakuru','Eldoret','Kakamega','Kiambu'];
+  grid.innerHTML = '';
+  c.counties.forEach((label, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'county-btn' + (rawCounties[i] === (selectedCounty || 'All') ? ' active' : '');
+    btn.textContent = label;
+    btn.onclick = () => setCounty(rawCounties[i] === 'All' ? null : rawCounties[i], btn);
+    grid.appendChild(btn);
+  });
+  document.getElementById('county-label').textContent = c.countyLabel;
+}
+
+function setCounty(county, btn) {
+  selectedCounty = county;
+  document.querySelectorAll('.county-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else { const first = document.querySelector('.county-btn'); if(first) first.classList.add('active'); }
+  const footer = document.getElementById('county-footer');
+  if (county) {
+    footer.innerHTML = `<span class="county-badge">📍 ${county}</span>`;
+  } else {
+    footer.textContent = 'Boma Yangu AI · 2026';
+  }
+}
+
+/* ════════════════════════════════════════════
+   LANGUAGE
+════════════════════════════════════════════ */
+function setLang(l) {
+  lang = l;
+  const c = C[l];
+  document.getElementById('btn-en').classList.toggle('on', l==='en');
+  document.getElementById('btn-sw').classList.toggle('on', l==='sw');
+  document.getElementById('w-title').innerHTML  = c.wTitle;
+  document.getElementById('w-sub').textContent  = c.wSub;
+  const gr = document.getElementById('greeting');
+  if (gr) gr.textContent = c.greeting;
+  document.getElementById('inp').placeholder    = c.ph;
+  document.getElementById('hint').textContent   = c.hint;
+  document.getElementById('status-txt').textContent = c.statusOK;
+  document.getElementById('h-status').textContent   = c.hStatusOK;
+  document.getElementById('nav-label').textContent  = c.navLabel;
+  document.getElementById('new-chat-label').textContent = c.newChat;
+  document.querySelectorAll('.nt').forEach((el,i)=>{if(c.navItems[i]) el.textContent=c.navItems[i]});
+  renderChips();
+  renderCards();
+  renderCounties();
+}
+
+/* ════════════════════════════════════════════
+   CHIPS
+════════════════════════════════════════════ */
+function renderChips(round) {
+  const c   = C[lang];
+  const idx = (round !== undefined ? round : chipRound) % c.chips.length;
+  const set = c.chips[idx];
+  const wrap = document.getElementById('chips');
+  if (!wrap) return;
+  wrap.style.opacity = '0';
+  setTimeout(() => {
+    wrap.innerHTML = '';
+    set.forEach((txt,i) => {
+      const b = document.createElement('button');
+      b.className = 'chip';
+      b.textContent = txt;
+      b.style.animationDelay = `${i*.05}s`;
+      b.onclick = () => handleChip(txt);
+      wrap.appendChild(b);
+    });
+    wrap.style.transition = 'opacity .28s ease';
+    wrap.style.opacity    = '1';
+  }, 140);
+}
+
+/* ════════════════════════════════════════════
+   LANDING CARDS
+════════════════════════════════════════════ */
+function renderCards() {
+  const wrap = document.getElementById('cards');
+  if (!wrap) return;
+  const cards = C[lang].cards;
+  wrap.innerHTML = '';
+  cards.forEach((card, i) => {
+    const el = document.createElement('button');
+    el.className = 'card';
+    el.style.animationDelay = `${i * 0.06}s`;
+    el.innerHTML = `
+      <span class="card-icon">${card.icon}</span>
+      <div class="card-title">${card.title}</div>
+      <div class="card-desc">${card.desc}</div>
+      <span class="card-arrow">→</span>`;
+    el.onclick = i === 0
+      ? () => { window.location.href = '/eligibility'; }
+      : () => handleChip(card.q);
+    // Mouse glow effect
+    el.addEventListener('mousemove', e => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', `${e.clientX - r.left}px`);
+      el.style.setProperty('--my', `${e.clientY - r.top}px`);
+    });
+    wrap.appendChild(el);
+  });
+}
+
+function handleChip(txt) {
+  document.getElementById('inp').value = txt;
+  sendMsg();
+}
+
+function quickAsk(btn) {
+  const txt = btn.querySelector('.nt').textContent;
+  document.getElementById('inp').value = txt;
+  sendMsg();
+  closePanel();
+}
+
+/* ════════════════════════════════════════════
+   DARK MODE
+════════════════════════════════════════════ */
+function toggleDark() {
+  dark = !dark;
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('dark-btn').textContent = dark ? '☀️' : '🌙';
+}
+
+/* ════════════════════════════════════════════
+   MOBILE PANEL
+════════════════════════════════════════════ */
+function openPanel()  {
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+function closePanel() {
+  document.getElementById('panel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+/* ════════════════════════════════════════════
+   CLEAR CHAT / NEW CHAT
+════════════════════════════════════════════ */
+function clearChat() {
+  const msgs = document.getElementById('msgs');
+  history = [];
+  chipRound = 0;
+  lastSendTime = 0;
+  const c = C[lang];
+  msgs.innerHTML = `
+    <div class="welcome" id="welcome">
+      <div class="w-tag">🇰🇪 Kenya Housing · 2026</div>
+      <h2 class="w-title" id="w-title">${c.wTitle}</h2>
+      <p class="w-sub" id="w-sub">${c.wSub}</p>
+      <div class="chips-wrap" id="chips"></div>
+      <div class="cards-section" id="cards"></div>
+    </div>
+    <div class="msg">
+      <div class="avatar ai">BY</div>
+      <div class="bubble-wrap">
+        <div class="bubble ai" id="greeting">${c.greeting}</div>
+      </div>
+    </div>`;
+  renderChips(0);
+  renderCards();
+}
+
+/* ════════════════════════════════════════════
+   TEXTAREA AUTO-GROW
+════════════════════════════════════════════ */
+const inp = document.getElementById('inp');
+inp.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 130) + 'px';
+});
+inp.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+});
+
+/* ════════════════════════════════════════════
+   TIMESTAMP
+════════════════════════════════════════════ */
+function getTime() {
+  return new Date().toLocaleTimeString('en-KE', { hour:'2-digit', minute:'2-digit' });
+}
+
+/* ════════════════════════════════════════════
+   COPY MESSAGE
+════════════════════════════════════════════ */
+function copyMsg(btn) {
+  const bubble = btn.closest('.bubble-wrap').querySelector('.bubble');
+  const text = bubble.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg viewBox="0 0 24 24"><polyline points="20 6 9 16 4 11" stroke-width="2.5"/></svg>`;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = copyIcon();
+    }, 2000);
+  }).catch(() => {});
+}
+
+function copyIcon() {
+  return `<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+}
+
+/* ════════════════════════════════════════════
+   SEND — with 4s debounce
+════════════════════════════════════════════ */
+const sendBtn = document.getElementById('send-btn');
+
+async function sendMsg() {
+  const text = inp.value.trim();
+  if (!text || busy) return;
+
+  const now = Date.now();
+  if (now - lastSendTime < 4000 && lastSendTime > 0) return;
+  lastSendTime = now;
+
+  inp.value = ''; inp.style.height = 'auto';
+
+  // Dismiss welcome
+  const wc = document.getElementById('welcome');
+  if (wc) {
+    wc.style.transition = 'opacity .28s ease, transform .28s ease';
+    wc.style.opacity = '0'; wc.style.transform = 'translateY(-8px)';
+    setTimeout(() => wc.remove(), 300);
+  }
+
+  addMsg('user', text);
+  history.push({ role: 'user', content: text });
+
+  busy = true;
+  sendBtn.disabled = true;
+  setStatus('busy');
+  const typingEl = showTyping();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: history.slice(-12),
+        county: selectedCounty || null
+      })
+    });
+    if (!res.ok) throw new Error('api');
+    const data  = await res.json();
+    const reply = data.reply || data.message || (
+      lang === 'sw'
+        ? 'Samahani, kuna tatizo. Tafadhali jaribu tena. 🔄'
+        : 'Sorry, there was an issue. Please try again. 🔄'
+    );
+
+    typingEl.remove();
+    busy = false;
+    sendBtn.disabled = false;
+    addMsg('ai', reply);
+    history.push({ role: 'assistant', content: reply });
+    chipRound++;
+    addChipsRow();
+    setStatus('ok');
+
+  } catch {
+    typingEl.remove();
+    busy = false;
+    sendBtn.disabled = false;
+    setStatus('ok');
+    addMsg('ai', lang==='sw'
+      ? 'Samahani, kuna tatizo la muunganisho. Tafadhali jaribu tena. 🔄'
+      : 'Sorry, there was a connection issue. Please try again. 🔄'
+    );
+  }
+}
+
+/* ════════════════════════════════════════════
+   MARKDOWN RENDERER
+════════════════════════════════════════════ */
+function renderMarkdown(raw) {
+  function inline(t) {
+    return t
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
+      .replace(/\[Source:\s*(.*?)\]/g, '<span class="cite">📄 $1</span>');
+  }
+  const escaped = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const lines = escaped.split('\n');
+  const out = [];
+  let inOL = false, inUL = false;
+  for (const line of lines) {
+    // Section headers: lines that are entirely **text** or **text:**
+    const headerM = line.match(/^\*\*(.+?):?\*\*\s*$/) || line.match(/^\*\*(.+?)\*\*:\s*$/);
+    if (headerM) {
+      if (inOL) { out.push('</ol>'); inOL = false; }
+      if (inUL) { out.push('</ul>'); inUL = false; }
+      out.push(`<div class="section-header">${headerM[1].replace(/:$/, '')}</div>`);
+      continue;
+    }
+    const olM = line.match(/^(\d+)\.\s+(.+)$/);
+    const ulM = line.match(/^[-•]\s+(.+)$/);
+    if (olM) {
+      if (inUL) { out.push('</ul>'); inUL = false; }
+      if (!inOL) { out.push('<ol class="md-ol">'); inOL = true; }
+      out.push(`<li>${inline(olM[2])}</li>`);
+    } else if (ulM) {
+      if (inOL) { out.push('</ol>'); inOL = false; }
+      if (!inUL) { out.push('<ul class="md-ul">'); inUL = true; }
+      out.push(`<li>${inline(ulM[1])}</li>`);
+    } else {
+      if (inOL) { out.push('</ol>'); inOL = false; }
+      if (inUL) { out.push('</ul>'); inUL = false; }
+      if (line.trim() === '') { out.push('<br>'); }
+      else { out.push(`<p class="md-p">${inline(line)}</p>`); }
+    }
+  }
+  if (inOL) out.push('</ol>');
+  if (inUL) out.push('</ul>');
+  return out.join('');
+}
+
+/* ════════════════════════════════════════════
+   ADD MESSAGE
+════════════════════════════════════════════ */
+function addMsg(role, text) {
+  const msgs = document.getElementById('msgs');
+  const d    = document.createElement('div');
+  d.className = `msg ${role}`;
+  const ts  = getTime();
+
+  if (role === 'ai') {
+    const content = renderMarkdown(text);
+    d.innerHTML = `
+      <div class="avatar ai">BY</div>
+      <div class="bubble-wrap">
+        <div class="bubble ai">${content}</div>
+        <div class="msg-meta">
+          <button class="copy-btn" onclick="copyMsg(this)" title="Copy">${copyIcon()}</button>
+          <span class="msg-ts">${ts}</span>
+        </div>
+      </div>`;
+  } else {
+    const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    d.innerHTML = `
+      <div class="bubble-wrap user">
+        <div class="bubble user"><p class="md-p">${safe}</p></div>
+        <div class="msg-meta user">
+          <span class="msg-ts">${ts}</span>
+        </div>
+      </div>
+      <div class="avatar user">U</div>`;
+  }
+
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+/* ════════════════════════════════════════════
+   TYPING INDICATOR
+════════════════════════════════════════════ */
+function showTyping() {
+  const msgs = document.getElementById('msgs');
+  const d = document.createElement('div');
+  d.className = 'typing';
+  d.innerHTML = `<div class="avatar ai">BY</div>
+    <div class="t-bubble">
+      <div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>
+    </div>`;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+  return d;
+}
+
+/* ════════════════════════════════════════════
+   CHIPS AFTER REPLY
+════════════════════════════════════════════ */
+function addChipsRow() {
+  const msgs = document.getElementById('msgs');
+  const c    = C[lang];
+  const set  = c.chips[chipRound % c.chips.length];
+  const row  = document.createElement('div');
+  row.className = 'chips-row';
+  set.slice(0,4).forEach((txt,i) => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.textContent = txt;
+    b.style.animationDelay = `${i*.06}s`;
+    b.onclick = () => { row.remove(); handleChip(txt); };
+    row.appendChild(b);
+  });
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+/* ════════════════════════════════════════════
+   STATUS
+════════════════════════════════════════════ */
+function setStatus(state) {
+  const c = C[lang];
+  document.getElementById('status-txt').textContent = state==='busy' ? c.statusBusy : c.statusOK;
+  document.getElementById('h-status').textContent   = state==='busy' ? c.hStatusBusy : c.hStatusOK;
+}
+
+/* ════════════════════════════════════════════
+   STATS COUNTER ANIMATION
+════════════════════════════════════════════ */
+function animateCounters() {
+  document.querySelectorAll('.stat-n[data-count]').forEach(el => {
+    const target = parseInt(el.dataset.count);
+    const dur = 1200, start = performance.now();
+    function step(now) {
+      const p = Math.min((now - start) / dur, 1);
+      const eased = 1 - Math.pow(1-p, 3);
+      el.textContent = Math.round(eased * target);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+/* ════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════ */
+renderChips(0);
+renderCards();
+renderCounties();
+// Set default footer
+document.getElementById('county-footer').textContent = 'Boma Yangu AI · 2026';
+setTimeout(animateCounters, 400);
+</script>
+</body>
+</html>
