@@ -44,6 +44,9 @@
   --card-hover:    rgba(155,142,199,0.1);
   --text:          #1a1428;
   --muted:         #6b628a;
+  --error-text:    #c14545;
+  --error-bg:      rgba(193,69,69,0.09);
+  --error-border:  rgba(193,69,69,0.18);
   --t: 0.24s cubic-bezier(.4,0,.2,1);
   --t-slow: 0.42s cubic-bezier(.4,0,.2,1);
 }
@@ -65,6 +68,9 @@
   --card-hover:   rgba(155,142,199,0.1);
   --text:         #f0ecfc;
   --muted:        #8878b0;
+  --error-text:   #ff6b6b;
+  --error-bg:     rgba(255,107,107,0.08);
+  --error-border: rgba(255,107,107,0.15);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden}
@@ -191,6 +197,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--chat-bg);color:
 .bubble{width:100%;padding:13px 16px;border-radius:17px;font-size:14px;line-height:1.78;}
 .bubble.ai{background:var(--ai-bg);color:var(--ai-text);border:1px solid var(--ai-border);box-shadow:0 3px 14px rgba(26,20,40,.06);border-bottom-left-radius:5px;}
 .bubble.user{background:var(--user-bg);color:var(--user-text);box-shadow:0 5px 18px rgba(155,142,199,.3);border-bottom-right-radius:5px;}
+.bubble.error{background:var(--error-bg);color:var(--error-text);border:1px solid var(--error-border);box-shadow:none;}
 .msg-meta{display:flex;align-items:center;gap:6px;padding:0 3px;opacity:0;transition:opacity var(--t);}
 .msg-meta.user{justify-content:flex-end;}
 .msg:hover .msg-meta{opacity:1;}
@@ -199,6 +206,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--chat-bg);color:
 .copy-btn:hover{background:rgba(155,142,199,.15);color:var(--purple);border-color:var(--purple);}
 .copy-btn.copied{color:#4ade80;border-color:#4ade80;}
 .copy-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+/* ── RETRY BUTTON ── */
+.retry-btn{background:linear-gradient(140deg,var(--purple),var(--lavender));color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin-top:8px;transition:all var(--t);}
+.retry-btn:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(155,142,199,.32);}
+.retry-btn:active{transform:scale(.96);}
+.retry-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
+
+/* ── TRUST SIGNAL ── */
+.trust-signal{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid rgba(155,142,199,.12);}
+.trust-icon{font-size:11px;}
 
 /* ── TYPING ── */
 .typing{display:flex;gap:8px;align-items:flex-end;animation:fadeUp .28s cubic-bezier(.4,0,.2,1) both;}
@@ -407,6 +424,7 @@ let busy           = false;
 let history        = [];
 let chipRound      = 0;
 let lastSendTime   = 0;
+let lastUserMessage = '';
 let selectedCounty = null;
 
 /* ════════════════════════════════════════════
@@ -448,7 +466,7 @@ const C = {
     greeting:     'Karibu Boma Yangu AI 🏠 Naweza kukusaidia kuelewa ustahili wa nyumba nafuu, michango ya ushuru, mchakato wa maombi, miradi ya kaunti, na ugawaji wa nyumba Kenya. Ungependa kujua nini?',
     ph:           'Uliza kuhusu nyumba Kenya...',
     hint:         'Enter kutuma · Shift+Enter mstari mpya',
-    statusOK:     'AI Inaendesha · Iko tayari',
+    statusOK:     'AI Inaendeska · Iko tayari',
     statusBusy:   'AI Inafikiri...',
     hStatusOK:    'Mtandaoni · Msaidizi wa Nyumba',
     hStatusBusy:  'Inaandika jibu...',
@@ -574,7 +592,6 @@ function renderCards() {
     el.onclick = i === 0
       ? () => { window.location.href = '/eligibility'; }
       : () => handleChip(card.q);
-    // Mouse glow effect
     el.addEventListener('mousemove', e => {
       const r = el.getBoundingClientRect();
       el.style.setProperty('--mx', `${e.clientX - r.left}px`);
@@ -625,6 +642,7 @@ function clearChat() {
   history = [];
   chipRound = 0;
   lastSendTime = 0;
+  lastUserMessage = '';
   const c = C[lang];
   msgs.innerHTML = `
     <div class="welcome" id="welcome">
@@ -684,19 +702,38 @@ function copyIcon() {
 }
 
 /* ════════════════════════════════════════════
-   SEND — with 4s debounce
+   RETRY HANDLER
+════════════════════════════════════════════ */
+function handleRetry(btn) {
+  btn.disabled = true;
+  btn.textContent = lang === 'sw' ? 'Inajaribu...' : 'Retrying...';
+  sendMsg(true);
+}
+
+/* ════════════════════════════════════════════
+   SEND — with 4s debounce & proper error handling
 ════════════════════════════════════════════ */
 const sendBtn = document.getElementById('send-btn');
 
-async function sendMsg() {
-  const text = inp.value.trim();
+async function sendMsg(retryMode = false) {
+  let text = inp.value.trim();
+  
+  // If retry mode, use the last user message instead
+  if (retryMode && lastUserMessage) {
+    text = lastUserMessage;
+  } else {
+    lastUserMessage = text;
+  }
+  
   if (!text || busy) return;
 
   const now = Date.now();
   if (now - lastSendTime < 4000 && lastSendTime > 0) return;
   lastSendTime = now;
 
-  inp.value = ''; inp.style.height = 'auto';
+  if (!retryMode) {
+    inp.value = ''; inp.style.height = 'auto';
+  }
 
   // Dismiss welcome
   const wc = document.getElementById('welcome');
@@ -706,8 +743,10 @@ async function sendMsg() {
     setTimeout(() => wc.remove(), 300);
   }
 
-  addMsg('user', text);
-  history.push({ role: 'user', content: text });
+  if (!retryMode) {
+    addMsg('user', text);
+    history.push({ role: 'user', content: text });
+  }
 
   busy = true;
   sendBtn.disabled = true;
@@ -723,32 +762,74 @@ async function sendMsg() {
         county: selectedCounty || null
       })
     });
-    if (!res.ok) throw new Error('api');
+
+    // ─ Handle non-OK responses ─
+    if (!res.ok) {
+      let errorMsg = '';
+      try {
+        const errData = await res.json();
+        errorMsg = errData.error || `Error ${res.status}`;
+      } catch {
+        errorMsg = `Error ${res.status}: Unable to process your request`;
+      }
+      throw new Error(errorMsg);
+    }
+
     const data  = await res.json();
-    const reply = data.reply || data.message || (
-      lang === 'sw'
-        ? 'Samahani, kuna tatizo. Tafadhali jaribu tena. 🔄'
-        : 'Sorry, there was an issue. Please try again. 🔄'
-    );
+    const reply = data.reply || data.message;
+    
+    if (!reply) {
+      throw new Error(lang === 'sw' 
+        ? 'Jibu tupu litakamatiliwa. Tafadhali jaribu tena.'
+        : 'Empty response received. Please try again.'
+      );
+    }
 
     typingEl.remove();
     busy = false;
     sendBtn.disabled = false;
-    addMsg('ai', reply);
+    addMsg('ai', reply, true); // true = add trust signal
     history.push({ role: 'assistant', content: reply });
     chipRound++;
     addChipsRow();
     setStatus('ok');
 
-  } catch {
+  } catch (err) {
     typingEl.remove();
     busy = false;
     sendBtn.disabled = false;
     setStatus('ok');
-    addMsg('ai', lang==='sw'
-      ? 'Samahani, kuna tatizo la muunganisho. Tafadhali jaribu tena. 🔄'
-      : 'Sorry, there was a connection issue. Please try again. 🔄'
-    );
+    
+    // Extract error message
+    const errorText = err.message || (lang==='sw' ? 'Tatizo linajulikana' : 'Unknown error');
+    
+    // User-friendly error messages
+    let displayMsg = '';
+    let showRetry = true;
+    
+    if (errorText.includes('429') || errorText.includes('rate limit') || errorText.includes('busy')) {
+      displayMsg = lang === 'sw'
+        ? '⏳ AI inaendesha kwa kasi sana sasa. Samahani — tafadhali jaribu tena baada ya dakika moja.'
+        : '⏳ AI is processing many requests right now. Please wait a moment and try again.';
+    } else if (errorText.includes('502') || errorText.includes('AI service')) {
+      displayMsg = lang === 'sw'
+        ? '🔌 Huduma ya AI haipo mtandaoni sasa. Tafadhali jaribu tena baada ya sekunde chache.'
+        : '🔌 The AI service is temporarily unavailable. Please try again in a few seconds.';
+    } else if (errorText.includes('network') || errorText.includes('connection')) {
+      displayMsg = lang === 'sw'
+        ? '📡 Tatizo la mtandao. Tafadhali hakikisha unaunganishwa na mtandao na jaribu tena.'
+        : '📡 Network connection issue. Please check your connection and try again.';
+    } else if (errorText.includes('Empty') || errorText.includes('tupu')) {
+      displayMsg = lang === 'sw'
+        ? '❌ Jibu tupu litakamatiliwa. Tafadhali jaribu swali tofauti au tena.'
+        : '❌ No response received. Please try rephrasing your question or try again.';
+    } else {
+      displayMsg = lang === 'sw'
+        ? `❌ Tatizo: ${errorText}. Tafadhali jaribu tena.`
+        : `❌ Error: ${errorText}. Please try again.`;
+    }
+    
+    addMsg('ai', displayMsg, false, true, showRetry); // showRetry = true
   }
 }
 
@@ -767,7 +848,6 @@ function renderMarkdown(raw) {
   const out = [];
   let inOL = false, inUL = false;
   for (const line of lines) {
-    // Section headers: lines that are entirely **text** or **text:**
     const headerM = line.match(/^\*\*(.+?):?\*\*\s*$/) || line.match(/^\*\*(.+?)\*\*:\s*$/);
     if (headerM) {
       if (inOL) { out.push('</ol>'); inOL = false; }
@@ -800,7 +880,7 @@ function renderMarkdown(raw) {
 /* ════════════════════════════════════════════
    ADD MESSAGE
 ════════════════════════════════════════════ */
-function addMsg(role, text) {
+function addMsg(role, text, addTrust = false, isError = false, showRetry = false) {
   const msgs = document.getElementById('msgs');
   const d    = document.createElement('div');
   d.className = `msg ${role}`;
@@ -808,10 +888,20 @@ function addMsg(role, text) {
 
   if (role === 'ai') {
     const content = renderMarkdown(text);
+    let trustSignal = '';
+    if (addTrust && !isError) {
+      trustSignal = `<div class="trust-signal"><span class="trust-icon">✓</span><span>${lang === 'sw' ? 'Kutoka vyanzo rasmi vya serikali' : 'Sourced from official government data'}</span></div>`;
+    }
+    let retryBtn = '';
+    if (showRetry) {
+      retryBtn = `<button class="retry-btn" onclick="handleRetry(this)">${lang === 'sw' ? '🔄 Jaribu tena' : '🔄 Retry'}</button>`;
+    }
     d.innerHTML = `
       <div class="avatar ai">BY</div>
       <div class="bubble-wrap">
-        <div class="bubble ai">${content}</div>
+        <div class="bubble ai ${isError ? 'error' : ''}">${content}</div>
+        ${retryBtn}
+        ${trustSignal}
         <div class="msg-meta">
           <button class="copy-btn" onclick="copyMsg(this)" title="Copy">${copyIcon()}</button>
           <span class="msg-ts">${ts}</span>
@@ -902,7 +992,6 @@ function animateCounters() {
 renderChips(0);
 renderCards();
 renderCounties();
-// Set default footer
 document.getElementById('county-footer').textContent = 'Boma Yangu AI · 2026';
 setTimeout(animateCounters, 400);
 </script>
